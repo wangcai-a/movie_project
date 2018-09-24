@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-import datetime
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -134,3 +134,48 @@ class Role(db.Model):
 
     def __repr__(self):
         return "<Role %r>" % self.name
+
+
+# 管理员
+class Admin(db.Model):
+    __tablename = "admin"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True)  # 管理员账号
+    pwd = db.Column(db.String(100))  # 密码
+    is_super = db.Column(db.SmallInterger) # 是否为管理员
+    role_id = db.Column(db.Interger, db.ForeignKey("role.id"))  # 所属角色
+    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  # 创建时间
+    adminlogs = db.relationship("Adminlog", backref='adimn')    # 管理员登录日志外键关联关系
+    oplogs = db.relationship("Oplog", backref="admin")  # 管理员操作日志外键关联关系
+
+    def __repr__(self):
+        return "<Admin %r>" % self.name
+
+
+# 管理员登陆日志
+class Adminlog(db.Model):
+    __tablename__ = "adminlog"
+    id = db.Column(db.Interger, primary_key=True)   # 编号
+    admin_id = db.Column(db.Interger, db.ForeignKey('admin.id'))    # 所属管理员
+    ip = db.Column(db.String(100))  # 登录ip
+    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)   # 所属管理员
+
+    def __repr__(self):
+        return "<Adminlog %r>" % self.id
+
+
+# 操作日志
+class Oplog(db.Model):
+    __tablename__ = "oplog"
+    id = db.Column(db.Interger, primary_key=True)   # 编号
+    admin_id = db.Column(db.Interger, db.ForeignKey('admin.id'))    # 所属管理员
+    ip = db.Column(db.String(100))  # 登录ip
+    reason = db.Column(db.String(600)) # 操作原因
+    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)   # 所属管理员
+
+    def __repr__(self):
+        return "<Oplog %r>" % self.id
+
+
+if __name__ == '__main__':
+    db.create_all()
