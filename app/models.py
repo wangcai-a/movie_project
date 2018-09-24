@@ -110,3 +110,27 @@ class Moviecol(db.Model):
 
     def __repr__(self):
         return "<Moviecol %r>" % self.id
+
+
+# 权限
+class Auth(db.Model):
+    __tablename = "auth"
+    id = db.Column(db.Interger, primary_key=True)  # 编号
+    name = db.Column(db.String(100), unique=True)  # 名称
+    url = db.Column(db.String(255), unique=True)  # 地址
+    addtime = db.Column(db.DateTiem, index=True, default=datetime.utcnow)  # 添加时间
+
+    def __repr__(self):
+        return "<Auth %r>" % self.id
+
+
+# 角色
+class Role(db.Model):
+    __tablename = "role"
+    id = db.Column(db.Interger, primary_key=True)  # 编号
+    name = db.Column(db.String(100), unique=True)  # 名称
+    auths = db.Column(db.String(600))  # 权限列表
+    addtime = db.Column(db.DateTiem, index=True, default=datetime.utcnow)  # 添加时间
+
+    def __repr__(self):
+        return "<Role %r>" % self.name
