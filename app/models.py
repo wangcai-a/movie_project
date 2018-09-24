@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 app = Flask(__name__)
-app.config["SQLACHEMY_DATABASE_URI"] = "mysql://root:mysql@127.0.0.1/movie"
+app.config["SQLACHEMY_DATABASE_URI"] = "pymysql://root:mysql@127.0.0.1:3306/movie"
 app.config["SQLACHEMY_TRACK_MODIFICATIONS"] = True
 
 db = SQLAlchemy(app)
@@ -17,14 +17,14 @@ class User(db.Model):
     name = db.Column(db.String(100), unique=True)   # 昵称
     pwd = db.Column(db.String(100))     # 密码
     email = db.Column(db.String(100), unique=True)  # 邮箱
-    phone = db.Column(db.String(11), nuique=True)   # 手机号码
+    phone = db.Column(db.String(11), unique=True)   # 手机号码
     info = db.Column(db.Text)   # 简介
     face = db.Column(db.String(255), unique=True)   # 头像
     addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)   # 创建时间
     uuid = db.Column(db.String(255), unique=True)   # 唯一标识符
     userlogs = db.relationship('Userlog', backref='user')   # 会员日志外键关联
-    comments = db.relationshop("Comment", backref='user')   # 评论外键关联关系
-    moviecol = db.relationshop("Moviecol", backref='user')  # 收藏评论外键关联关系
+    comments = db.relationship("Comment", backref='user')   # 评论外键关联关系
+    moviecol = db.relationship("Moviecol", backref='user')  # 收藏评论外键关联关系
 
     def __repr__(self):
         return "<User %r>" % self.name
@@ -33,8 +33,8 @@ class User(db.Model):
 # 会员登录日志
 class Userlog(db.Model):
     __tablename__ = "userlog"
-    id = db.Column(db.Interger, primary_key=True)
-    user_id = db.Column(db.Interger, db.ForeignKey('user.id'))
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     ip = db.Column(db.String(100))
     addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
@@ -44,7 +44,7 @@ class Userlog(db.Model):
 
 class Tag(db.Model):
     __tablename__ = "tag"
-    id = db.Column(db.Interger, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
     addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     movies = db.relationship("Movie", backref="tag") # 电影外键关联
@@ -55,21 +55,21 @@ class Tag(db.Model):
 
 class Movie(db.Model):
     __tablename__ = "movie"
-    id = db.Column(db.Interger, primary_key=True)   # 编号
+    id = db.Column(db.Integer, primary_key=True)   # 编号
     title = db.Column(db.String(255), unique=True)  # 标题
     url = db.Column(db.String(255), unique=True)    # 地址
     info = db.Column(db.Text)   # 简介
     logo = db.Column(db.String(255), unique=True)   # 封面
-    star = db.Column(db.SmallInterger)  # 星级
-    playnum = db.Column(db.BigInterger) # 播放量
-    commentnum = db.Column(db.BigInterger)  # 评论量
-    tag_id = db.Column(db.Interger, db.ForeignKey('tag.id'))    # 所属标签
+    star = db.Column(db.SmallInteger)  # 星级
+    playnum = db.Column(db.BigInteger) # 播放量
+    commentnum = db.Column(db.BigInteger)  # 评论量
+    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))    # 所属标签
     area = db.Column(db.String(255))    # 地区
     release_time = db.Column(db.Date)   # 上映时间
     length = db.Column(db.String)   # 播放时间
     addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)   # 添加时间
-    comments = db.relationshop("Comment", backref='movie')   # 评论外键关联关系
-    moviecol = db.relationshop("Moviecol", backref='movie')  # 收藏外键关联关系
+    comments = db.relationship("Comment", backref='movie')   # 评论外键关联关系
+    moviecol = db.relationship("Moviecol", backref='movie')  # 收藏外键关联关系
 
     def __repr__(self):
         return "<Moive %r>" % self.title
@@ -78,7 +78,7 @@ class Movie(db.Model):
 # 上映预告
 class Preview(db.Model):
     __tablename__ = "preview"
-    id = db.Column(db.Interger, primary_key=True)  # 编号
+    id = db.Column(db.Integer, primary_key=True)  # 编号
     title = db.Column(db.String(255), unique=True)  # 标题
     logo = db.Column(db.String(255), unique=True)  # 封面
     addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -90,10 +90,10 @@ class Preview(db.Model):
 # 评论
 class Comment(db.Model):
     __tablename__ = "comment"
-    id = db.Column(db.Interger, primary_key=True)  # 编号
+    id = db.Column(db.Integer, primary_key=True)  # 编号
     content = db.Column(db.Text)
-    movie_id = db.Column(db.Integer, db.ForeignKey("mivie.id"))
-    user_id = db.COlumn(db.Interger, db.ForeignKey("user.id"))
+    movie_id = db.Column(db.Integer, db.ForeignKey("movie.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  # 添加时间
 
     def __repr__(self):
@@ -103,10 +103,10 @@ class Comment(db.Model):
 # 电影收藏
 class Moviecol(db.Model):
     __tablename__ = "moviecol"
-    id = db.Column(db.Interger, primary_key=True) # 编号
-    movie_id = db.Column(db.Interger, db.ForeignKey("movie.id"))    # 所属电影
-    user_id = db.Column(db.Interger, db.ForeignKey("user.id"))  # 所属用户
-    addtime = db.Column(db.Column(db.Datetime, index=True, default=datetime.utcnow))    # 添加时间
+    id = db.Column(db.Integer, primary_key=True) # 编号
+    movie_id = db.Column(db.Integer, db.ForeignKey("movie.id"))    # 所属电影
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))  # 所属用户
+    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)   # 添加时间
 
     def __repr__(self):
         return "<Moviecol %r>" % self.id
@@ -115,10 +115,10 @@ class Moviecol(db.Model):
 # 权限
 class Auth(db.Model):
     __tablename = "auth"
-    id = db.Column(db.Interger, primary_key=True)  # 编号
+    id = db.Column(db.Integer, primary_key=True)  # 编号
     name = db.Column(db.String(100), unique=True)  # 名称
     url = db.Column(db.String(255), unique=True)  # 地址
-    addtime = db.Column(db.DateTiem, index=True, default=datetime.utcnow)  # 添加时间
+    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  # 添加时间
 
     def __repr__(self):
         return "<Auth %r>" % self.id
@@ -127,10 +127,10 @@ class Auth(db.Model):
 # 角色
 class Role(db.Model):
     __tablename = "role"
-    id = db.Column(db.Interger, primary_key=True)  # 编号
+    id = db.Column(db.Integer, primary_key=True)  # 编号
     name = db.Column(db.String(100), unique=True)  # 名称
     auths = db.Column(db.String(600))  # 权限列表
-    addtime = db.Column(db.DateTiem, index=True, default=datetime.utcnow)  # 添加时间
+    addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  # 添加时间
 
     def __repr__(self):
         return "<Role %r>" % self.name
@@ -142,8 +142,8 @@ class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)  # 管理员账号
     pwd = db.Column(db.String(100))  # 密码
-    is_super = db.Column(db.SmallInterger) # 是否为管理员
-    role_id = db.Column(db.Interger, db.ForeignKey("role.id"))  # 所属角色
+    is_super = db.Column(db.SmallInteger) # 是否为管理员
+    role_id = db.Column(db.Integer, db.ForeignKey("role.id"))  # 所属角色
     addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  # 创建时间
     adminlogs = db.relationship("Adminlog", backref='adimn')    # 管理员登录日志外键关联关系
     oplogs = db.relationship("Oplog", backref="admin")  # 管理员操作日志外键关联关系
@@ -155,8 +155,8 @@ class Admin(db.Model):
 # 管理员登陆日志
 class Adminlog(db.Model):
     __tablename__ = "adminlog"
-    id = db.Column(db.Interger, primary_key=True)   # 编号
-    admin_id = db.Column(db.Interger, db.ForeignKey('admin.id'))    # 所属管理员
+    id = db.Column(db.Integer, primary_key=True)   # 编号
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))    # 所属管理员
     ip = db.Column(db.String(100))  # 登录ip
     addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)   # 所属管理员
 
@@ -167,8 +167,8 @@ class Adminlog(db.Model):
 # 操作日志
 class Oplog(db.Model):
     __tablename__ = "oplog"
-    id = db.Column(db.Interger, primary_key=True)   # 编号
-    admin_id = db.Column(db.Interger, db.ForeignKey('admin.id'))    # 所属管理员
+    id = db.Column(db.Integer, primary_key=True)   # 编号
+    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'))    # 所属管理员
     ip = db.Column(db.String(100))  # 登录ip
     reason = db.Column(db.String(600)) # 操作原因
     addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)   # 所属管理员
