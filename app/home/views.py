@@ -69,3 +69,5 @@ def search():
 @home.route("/play/")
 def play():
     return render_template("home/play.html")
+
+
