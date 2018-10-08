@@ -63,3 +63,9 @@ def moviecol():
 @home.route("/search/")
 def search():
     return render_template("home/search.html")
+
+
+# 电影播放
+@home.route("/play/")
+def play():
+    return render_template("home/play.html")
