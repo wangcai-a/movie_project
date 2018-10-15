@@ -96,3 +96,27 @@ def adminloginlog_list():
 @admin.route("/userloginlog/list")
 def userloginlog_list():
     return render_template("admin/userloginlog_list.html")
+
+
+# 添加权限
+@admin.route("/auth/add")
+def auth_add():
+    return render_template("admin/auth_add.html")
+
+
+# 权限列表
+@admin.route("/tag/list")
+def auth_list():
+    return render_template("admin/auth_list.html")
+
+
+# 添加角色
+@admin.route("/role/add")
+def role_add():
+    return render_template("admin/role_add.html")
+
+
+# 角色列表
+@admin.route("/role/list")
+def role_list():
+    return render_template("admin/role_list.html")
