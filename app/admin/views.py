@@ -74,4 +74,8 @@ def admin_list():
     return render_template("admin/admin_list.html")
 
 
+# 会员列表
+@admin.route("/cmoment/list")
+def comment_list():
+    return render_template("admin/comment_list.html")
 
