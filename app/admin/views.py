@@ -62,4 +62,16 @@ def preview_list():
     return render_template("admin/preview_list.html")
 
 
+# 会员添加
+@admin.route("/admin/add")
+def admin_add():
+    return render_template("admin/admin_add.html")
+
+
+# 会员列表
+@admin.route("/admin/list")
+def admin_list():
+    return render_template("admin/admin_list.html")
+
+
 
