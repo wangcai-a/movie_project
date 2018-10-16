@@ -1,13 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
 from datetime import datetime
-
-
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'mysql+pymysql://root:mysql@localhost:3306/movie'
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-
-db = SQLAlchemy(app)
+from app import db
 
 
 # 会员
@@ -177,5 +169,5 @@ class Oplog(db.Model):
         return "<Oplog %r>" % self.id
 
 
-if __name__ == '__main__':
-    db.create_all()
+# if __name__ == '__main__':
+#     db.create_all()

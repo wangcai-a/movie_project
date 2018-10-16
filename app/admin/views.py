@@ -1,6 +1,6 @@
 from . import admin
 from flask import render_template, url_for, redirect
-
+from app.admin.froms import LoginForm
 
 # 主页面
 @admin.route("/")
@@ -8,10 +8,13 @@ def index():
     return render_template("admin/index.html")
 
 
-# 登入
-@admin.route("/login")
+# 登录
+@admin.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("admin/login.html")
+    form = LoginForm()
+    if form.validate_on_submit():
+        data = form.data
+    return render_template("admin/login.html", form=form)
 
 
 # 登出
