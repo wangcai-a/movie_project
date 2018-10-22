@@ -1,7 +1,7 @@
 from . import admin
 from flask import render_template, url_for, redirect, flash, session, request
 from app.admin.froms import LoginForm, TagForm
-from app.models import Admin, Tag
+from app.models import Admin, Tag, Moviecol
 from functools import wraps
 from app import db
 
@@ -160,10 +160,15 @@ def comment_list():
 
 
 # 收藏列表
-@admin.route("/moviecol/list")
+@admin.route("/moviecol/list/<int:page>", methods=["GET"])
 @admin_login_req
-def moviecol_list():
-    return render_template("admin/moviecol_list.html")
+def moviecol_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Moviecol.query.order_by(
+        Moviecol.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("admin/moviecol_list.html", page_data=page_data)
 
 
 # 操作日志列表

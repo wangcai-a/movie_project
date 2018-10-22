@@ -66,3 +66,12 @@ class TagForm(FlaskForm):
             "class": "btn btn-primary"
         }
     )
+
+
+class Moviecol(FlaskForm):
+    submit = SubmitField(
+        "编辑",
+        render_kw={
+            "class": "bth bth-primary"
+        }
+    )
