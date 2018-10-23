@@ -1,7 +1,7 @@
 from . import admin
 from flask import render_template, url_for, redirect, flash, session, request
-from app.admin.froms import LoginForm, TagForm, MovieForm
-from app.models import Admin, Tag, Moviecol, Movie
+from app.admin.froms import LoginForm, TagForm, MovieForm, previewForm
+from app.models import Admin, Tag, Moviecol, Movie, Preview
 from functools import wraps
 from app import db, app
 from werkzeug.utils import secure_filename
@@ -236,11 +236,32 @@ def movie_del(id=None):
     return redirect(url_for("admin.movie_list", page=1))
 
 
-# 上映预告
-@admin.route("/preview/add")
+# 添加上映预告
+@admin.route("/preview/add", methods=["GET", "POST"])
 @admin_login_req
 def preview_add():
-    return render_template("admin/preview_add.html")
+    form = previewForm()
+    if form.validate_on_submit():
+        data = form.data
+        file_logo = secure_filename(form.logo.data.filename)
+        if not os.path.exists(app.config["UP_DIR"]):
+            os.makedirs(app.config["UP_DIR"])
+            os.chmod(app.config["UP_DIR"], stat.S_IRWXU)
+        logo = change_filename(file_logo)
+        form.logo.data.save(app.config["UP_DIR"] + logo)
+        title = Preview.query.filter_by(title=data['title']).count()
+        if title == 1:
+            flash("预告已经存在,请重新添加", "err")
+            return redirect(url_for("admin.preview_add"))
+        preview = Preview(
+            title=data["title"],
+            logo=logo
+        )
+        db.session.add(preview)
+        db.session.commit()
+        flash("添加标题成功", "ok")
+        return redirect(url_for("admin.preview_add"))
+    return render_template("admin/preview_add.html", form=form)
 
 
 # 上映预告列表
