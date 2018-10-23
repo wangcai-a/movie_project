@@ -184,6 +184,58 @@ def movie_list(page=None):
     return render_template("admin/movie_list.html", page_data=page_data)
 
 
+# 电影编辑
+@admin.route("/movie/edit/<int:id>", methods=["GET", "POST"])
+@admin_login_req
+def movie_edit(id=None):
+    form = MovieForm()
+    movie = Movie.query.get_or_404(id)
+    if form.validate_on_submit():
+        data = form.data
+        file_url = secure_filename(form.url.data.filename)
+        file_logo = secure_filename(form.logo.data.filename)
+        if not os.path.exists(app.config["UP_DIR"]):
+            os.makedirs(app.config["UP_DIR"])
+            os.chmod(app.config["UP_DIR"], stat.S_IRWXU)
+        url = change_filename(file_url)
+        logo = change_filename(file_logo)
+        form.url.data.save(app.config["UP_DIR"] + url)
+        form.logo.data.save(app.config["UP_DIR"] + logo)
+        title_count = Movie.query.filter_by(title=data['title']).count()
+        if title_count == 1 and movie.title != data["title"]:
+            flash("电影已经存在,请重新修改", "err")
+            return redirect(url_for("admin.movie_edit", id=id))
+        movie = Movie(
+            title=data["title"],
+            url=url,
+            info=data["info"],
+            logo=logo,
+            star=int(data["star"]),
+            playnum=0,
+            commentnum=0,
+            tag_id=data["tag_id"],
+            area=data["area"],
+            release_time=data["release_time"],
+            length=data["length"]
+        )
+        db.session.add(movie)
+        db.session.commit()
+        flash("修改电影成功", "ok")
+        return redirect(url_for("admin.movie_list", page=1))
+    return render_template("admin/movie_edit.html", form=form)
+
+
+# 电影删除
+@admin.route("/movie/del/<int:id>", methods=["GET"])
+@admin_login_req
+def movie_del(id=None):
+    movie = Movie.query.filter_by(id=id).first_or_404()
+    db.session.delete(movie)
+    db.session.commit()
+    flash("删除电影成功", "ok")
+    return redirect(url_for("admin.movie_list", page=1))
+
+
 # 上映预告
 @admin.route("/preview/add")
 @admin_login_req
