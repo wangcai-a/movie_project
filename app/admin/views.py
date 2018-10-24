@@ -1,7 +1,7 @@
 from . import admin
 from flask import render_template, url_for, redirect, flash, session, request
 from app.admin.froms import LoginForm, TagForm, MovieForm, previewForm
-from app.models import Admin, Tag, Moviecol, Movie, Preview
+from app.models import Admin, Tag, Moviecol, Movie, Preview, User
 from functools import wraps
 from app import db, app
 from werkzeug.utils import secure_filename
@@ -26,7 +26,6 @@ def change_filename(filename):
     fileinfo = os.path.splitext(filename)
     filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + str(uuid.uuid4().hex) + fileinfo[-1]
     return filename
-
 
 
 # 主页面
@@ -265,7 +264,7 @@ def preview_add():
 
 
 # 上映预告列表
-@admin.route("/preview/list")
+@admin.route("/preview/list", methods=["GET"])
 @admin_login_req
 def preview_list(page=None):
     if page is None:
@@ -317,10 +316,34 @@ def preview_del(id=None):
 
 
 # 会员列表
-@admin.route("/user/list")
+@admin.route("/user/list/<int:page>", methods=["GET"])
 @admin_login_req
-def user_list():
-    return render_template("admin/user_list.html")
+def user_list(page=None):
+    if page is None:
+        page = 1
+    page_data = User.query.order_by(
+        User.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("admin/user_list.html", page_data=page_data)
+
+
+# 会员查看
+@admin.route("user/view/<int:id>", methods=["GET"])
+@admin_login_req
+def user_view(id=None):
+    user = User.query.get_or_404(int(id))
+    return render_template("admin/user_view.html", user=user)
+
+
+# 会员删除
+@admin.route("/user/del/<int:id>", methods=["GET"])
+@admin_login_req
+def user_del(id=None):
+    user = User.query.filter_by(id=id).first_or_404()
+    db.session.delete(user)
+    db.session.commit()
+    flash("会员删除成功", "ok")
+    return redirect(url_for("admin.user_list", page=1))
 
 
 # 评论列表
