@@ -267,8 +267,53 @@ def preview_add():
 # 上映预告列表
 @admin.route("/preview/list")
 @admin_login_req
-def preview_list():
-    return render_template("admin/preview_list.html")
+def preview_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Preview.query.order_by(
+        Preview.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("admin/preview_list.html", page_data=page_data)
+
+
+# 预告编辑
+@admin.route("/preview/edit/<int:id>", methods=["GET", "POST"])
+@admin_login_req
+def preview_edit(id=None):
+    form = previewForm()
+    preview = Preview.query.get_or_404(id)
+    if form.validate_on_submit():
+        data = form.data
+        file_logo = secure_filename(form.logo.data.filename)
+        if not os.path.exists(app.config["UP_DIR"]):
+            os.makedirs(app.config["UP_DIR"])
+            os.chmod(app.config["UP_DIR"], stat.S_IRWXU)
+        logo = change_filename(file_logo)
+        form.logo.data.save(app.config["UP_DIR"] + logo)
+        title_count = Preview.query.filter_by(title=data['title']).count()
+        if title_count == 1 and preview.title != data["title"]:
+            flash("预告已经存在,请重新修改", "err")
+            return redirect(url_for("admin.preview_edit", id=id))
+        preview = Preview(
+            title=data["title"],
+            logo=logo
+        )
+        db.session.add(preview)
+        db.session.commit()
+        flash("修改预告成功", "ok")
+        return redirect(url_for("admin.preview_list", page=1))
+    return render_template("admin/preview_edit.html", form=form)
+
+
+# 预告删除
+@admin.route("/preview/del/<int:id>", methods=["GET"])
+@admin_login_req
+def preview_del(id=None):
+    preview = Preview.query.filter_by(id=id).first_or_404()
+    db.session.delete(preview)
+    db.session.commit()
+    flash("删除预告成功", "ok")
+    return redirect(url_for("admin.preview_list", page=1))
 
 
 # 会员列表
