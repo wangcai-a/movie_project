@@ -200,12 +200,3 @@ class previewForm(FlaskForm):
             "class": "btn btn-primary"
         }
     )
-
-
-class MoviecolForm(FlaskForm):
-    submit = SubmitField(
-        "编辑",
-        render_kw={
-            "class": "bth bth-primary"
-        }
-    )

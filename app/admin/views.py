@@ -269,11 +269,7 @@ def preview_add():
 def preview_list(page=None):
     if page is None:
         page = 1
-    page_data = Preview.query.join(User).filter(
-        User.id == Preview.user_id
-    ).join(Movie).filter(
-        Movie.id == Preview.movie_id
-    ).order_by(
+    page_data = Preview.query.order_by(
         Preview.addtime.desc()
     ).paginate(page=page, per_page=10)
     return render_template("admin/preview_list.html", page_data=page_data)
@@ -356,7 +352,11 @@ def user_del(id=None):
 def comment_list(page=None):
     if page is None:
         page = 1
-    page_data = Comment.query.order_by(
+    page_data = Comment.query.join(User).filter(
+        User.id == Comment.user_id
+    ).join(Movie).filter(
+        Movie.id == Comment.movie_id
+    ).order_by(
         Comment.addtime.desc()
     ).paginate(page=page, per_page=10)
     return render_template("admin/comment_list.html", page_data=page_data)
@@ -379,7 +379,11 @@ def comment_del(id=None):
 def moviecol_list(page=None):
     if page is None:
         page = 1
-    page_data = Moviecol.query.order_by(
+    page_data = Moviecol.query.join(User).filter(
+        User.id == Moviecol.user_id
+    ).join(Movie).filter(
+        Movie.id == Moviecol.movie_id
+    ).order_by(
         Moviecol.addtime.desc()
     ).paginate(page=page, per_page=10)
     return render_template("admin/moviecol_list.html", page_data=page_data)

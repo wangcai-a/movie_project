@@ -40,8 +40,8 @@
                         {% for v in page_data.items %}
                         <tr>
                             <td>{{ v.id }}</td>
-                            <td>{{ v.name }}</td>
-                            <td>{{ v.user }}</td>
+                            <td>{{ v.movie.title }}</td>
+                            <td>{{ v.user.name }}</td>
                             <td>{{ v.addtime }}</td>
                             <td>
                                 <a class="label label-success">编辑</a>
