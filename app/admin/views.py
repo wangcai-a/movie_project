@@ -1,7 +1,7 @@
 from . import admin
 from flask import render_template, url_for, redirect, flash, session, request
-from app.admin.froms import LoginForm, TagForm, MovieForm, PreviewForm, AuthForm
-from app.models import Admin, Tag, Moviecol, Movie, Preview, User, Comment, Adminlog, Oplog, Userlog, Auth
+from app.admin.froms import LoginForm, TagForm, MovieForm, PreviewForm, AuthForm, RoleForm, PwdForm
+from app.models import Admin, Tag, Moviecol, Movie, Preview, User, Comment, Adminlog, Oplog, Userlog, Auth, Role
 from functools import wraps
 from app import db, app
 from werkzeug.utils import secure_filename
@@ -43,7 +43,7 @@ def login():
         data = form.data
         admin = Admin.query.filter_by(name=data["account"]).first()
         if not admin.check_pwd(data['pwd']):
-            flash("密码错误!")
+            flash("密码错误!", "err")
             return redirect(url_for("admin.login"))
         session["admin"] = data["account"]
         return redirect(request.args.get("next") or url_for("admin.index"))
@@ -59,10 +59,20 @@ def logout():
 
 
 # 密码修改
-@admin.route("/pwd")
+@admin.route("/pwd", methods=["GET", "POST"])
 @admin_login_req
 def pwd():
-    return render_template("admin/pwd.html")
+    form = PwdForm()
+    if form.validate_on_submit():
+        data = form.data
+        admin = Admin.query.filter_by(name=session["admin"]).first()
+        from werkzeug.security import generate_password_hash
+        admin.pwd = generate_password_hash(data["new_pwd"])
+        db.session.add(admin)
+        db.session.commit()
+        flash("修改密码成功,请重新登录", "ok")
+        redirect(url_for('admin.logout'))
+    return render_template("admin/pwd.html", form=form)
 
 
 # 标签添加
@@ -500,10 +510,20 @@ def auth_del(id=None):
 
 
 # 添加角色
-@admin.route("/role/add")
+@admin.route("/role/add", methods=["GET", "POST"])
 @admin_login_req
 def role_add():
-    return render_template("admin/role_add.html")
+    form = RoleForm()
+    if form.validate_on_submit():
+        data = form.data
+        role = Role(
+            name=data["name"],
+            auths=",".join(map(lambda v:str(v), data["auths"]))
+        )
+        db.session.add(role)
+        db.session.commit()
+        flash("添加角色成功", "ok")
+    return render_template("admin/role_add.html", form=form)
 
 
 # 角色列表

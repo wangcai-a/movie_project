@@ -1,10 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField, SelectField, SelectMultipleField
 from wtforms.validators import DataRequired, ValidationError
-from app.models import Admin, Tag
+from app.models import Admin, Tag, Auth
 
 
 tags = Tag.query.all()
+auths_list = Auth.query.all()
 
 
 class LoginForm(FlaskForm):
@@ -233,3 +234,79 @@ class AuthForm(FlaskForm):
             "class": "btn btn-primary"
         }
     )
+
+
+class RoleForm(FlaskForm):
+    name = StringField(
+        label="角色名称",
+        validators=[
+            DataRequired("请输入角色名称")
+        ],
+        description="角色名称",
+        render_kw={
+            "class": "form-control",
+            "id": "input_title",
+            "placeholder": "请输入角色名称!"
+        }
+    )
+    auths = SelectMultipleField(
+        label="权限列表",
+        validators=[
+            DataRequired("请选择权限列表")
+        ],
+        coerce=int,
+        choices=[(v.id, v.name) for v in auths_list],
+        description="权限列表",
+        render_kw={
+            "class": "form-control"
+        }
+    )
+    submit = SubmitField(
+        "编辑",
+        render_kw={
+            "class": "bth bth-primary"
+        }
+    )
+
+
+class PwdForm(FlaskForm):
+    old_pwd = PasswordField(
+        label="旧密码",
+        validators={
+            DataRequired("请输入旧密码")
+        },
+        description="旧密码",
+        render_kw={
+            "class": "form-control",
+            "placeholder": "请输入旧密码",
+            "required": "required"
+        }
+    )
+    new_pwd = PasswordField(
+        label="新密码",
+        validators={
+            DataRequired("请输入新密码")
+        },
+        description="新密码",
+        render_kw={
+            "class": "form-control",
+            "placeholder": "请输入新密码",
+            "required": "required"
+        }
+    )
+    submit = SubmitField(
+        "编辑",
+        render_kw={
+            "class": "bth bth-primary"
+        }
+    )
+
+    def validate_old_pwd(self, field):
+        from flask import session
+        pwd = field.data
+        name = session["admin"]
+        admin = Admin.query.filter_by(
+            name=name
+        ).first()
+        if not admin.check_pwd(pwd):
+            raise ValidationError("旧密码错误")
