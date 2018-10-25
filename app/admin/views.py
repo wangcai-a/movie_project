@@ -1,7 +1,7 @@
 from . import admin
 from flask import render_template, url_for, redirect, flash, session, request
 from app.admin.froms import LoginForm, TagForm, MovieForm, previewForm
-from app.models import Admin, Tag, Moviecol, Movie, Preview, User
+from app.models import Admin, Tag, Moviecol, Movie, Preview, User, Comment
 from functools import wraps
 from app import db, app
 from werkzeug.utils import secure_filename
@@ -269,7 +269,11 @@ def preview_add():
 def preview_list(page=None):
     if page is None:
         page = 1
-    page_data = Preview.query.order_by(
+    page_data = Preview.query.join(User).filter(
+        User.id == Preview.user_id
+    ).join(Movie).filter(
+        Movie.id == Preview.movie_id
+    ).order_by(
         Preview.addtime.desc()
     ).paginate(page=page, per_page=10)
     return render_template("admin/preview_list.html", page_data=page_data)
@@ -347,10 +351,26 @@ def user_del(id=None):
 
 
 # 评论列表
-@admin.route("/cmoment/list")
+@admin.route("/cmoment/list/<int:page>", methods=["GET"])
 @admin_login_req
-def comment_list():
-    return render_template("admin/comment_list.html")
+def comment_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Comment.query.order_by(
+        Comment.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("admin/comment_list.html", page_data=page_data)
+
+
+# 评论删除
+@admin.route("/comment/del/<int:id>", methods=["GET"])
+@admin_login_req
+def comment_del(id=None):
+    comment = Comment.query.filter_by(id=id).first_or_404()
+    db.session.delete(comment)
+    db.session.commit()
+    flash("删除评论成功", "ok")
+    return redirect(url_for("admin.comment_list", page=1))
 
 
 # 收藏列表
