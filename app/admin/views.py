@@ -1,7 +1,7 @@
 from . import admin
 from flask import render_template, url_for, redirect, flash, session, request
-from app.admin.froms import LoginForm, TagForm, MovieForm, previewForm
-from app.models import Admin, Tag, Moviecol, Movie, Preview, User, Comment
+from app.admin.froms import LoginForm, TagForm, MovieForm, PreviewForm, AuthForm
+from app.models import Admin, Tag, Moviecol, Movie, Preview, User, Comment, Adminlog, Oplog, Userlog, Auth
 from functools import wraps
 from app import db, app
 from werkzeug.utils import secure_filename
@@ -239,7 +239,7 @@ def movie_del(id=None):
 @admin.route("/preview/add", methods=["GET", "POST"])
 @admin_login_req
 def preview_add():
-    form = previewForm()
+    form = PreviewForm()
     if form.validate_on_submit():
         data = form.data
         file_logo = secure_filename(form.logo.data.filename)
@@ -279,7 +279,7 @@ def preview_list(page=None):
 @admin.route("/preview/edit/<int:id>", methods=["GET", "POST"])
 @admin_login_req
 def preview_edit(id=None):
-    form = previewForm()
+    form = PreviewForm()
     preview = Preview.query.get_or_404(id)
     if form.validate_on_submit():
         data = form.data
@@ -390,38 +390,113 @@ def moviecol_list(page=None):
 
 
 # 操作日志列表
-@admin.route("/oplog/list")
+@admin.route("/oplog/list/<int:page>")
 @admin_login_req
-def oplog_list():
-    return render_template("admin/oplog_list.html")
+def oplog_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Oplog.query.join(Admin).filter(
+        Admin.id == Oplog.admin_id
+    ).order_by(
+        Oplog.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("admin/oplog_list.html", page_data=page_data)
 
 
 # 管理员日志列表
-@admin.route("/adminloginlog/list")
+@admin.route("/adminloginlog/list/<int:page>")
 @admin_login_req
-def adminloginlog_list():
-    return render_template("admin/adminloginlog_list.html")
+def adminloginlog_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Oplog.query.join(Admin).filter(
+        Admin.id == Adminlog.admin_id
+    ).order_by(
+        Oplog.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("admin/adminloginlog_list.html", page_data=page_data)
 
 
 # 会员登录日志列表
-@admin.route("/userloginlog/list")
+@admin.route("/userloginlog/list/<int:page>")
 @admin_login_req
-def userloginlog_list():
-    return render_template("admin/userloginlog_list.html")
+def userloginlog_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Userlog.query.join(User).filter(
+        User.id == Userlog.user_id
+    ).order_by(
+        Userlog.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("admin/userloginlog_list.html", page_data=page_data)
 
 
 # 添加权限
-@admin.route("/auth/add")
+@admin.route("/auth/add", methods=["GET", "POST"])
 @admin_login_req
 def auth_add():
-    return render_template("admin/auth_add.html")
+    form = AuthForm()
+    if form.validate_on_submit():
+        data = form.data
+        name = Auth.query.filter_by(name=data["name"]).count()
+        if name == 1:
+            flash("权限已存在", "err")
+            return redirect(url_for("admin.auth_add"))
+        auth = Auth(
+            name=data["name"],
+            url=data["url"]
+        )
+        db.session.add(auth)
+        db.session.commit()
+        flash("权限添加成功", "ok")
+        return redirect(url_for("admin.auth_add"))
+    return render_template("admin/auth_add.html", form=form)
 
 
 # 权限列表
-@admin.route("/tag/list")
+@admin.route("/auth/list/<int:page>")
 @admin_login_req
-def auth_list():
-    return render_template("admin/auth_list.html")
+def auth_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Auth.query.order_by(
+        Auth.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("admin/auth_list.html", page_data=page_data)
+
+
+# 编辑权限
+@admin.route("/auth/edit/<int:id>", methods=["GET", "POST"])
+@admin_login_req
+def auth_edit(id=None):
+    form = AuthForm()
+    auth = Auth.query.get_or_404(id)
+    if form.validate_on_submit():
+        data = form.data
+        name_count = Auth.query.filter_by(name=data["name"]).count()
+        if name_count == 1 and auth.name != data["name"]:
+            flash("权限已存在,请重新修改", "err")
+            return redirect(url_for("admin.auth_add"))
+        auth = Auth(
+            name=data["name"],
+            url=data["url"]
+        )
+        db.session.add(auth)
+        db.session.commit()
+        flash("权限修改成功", "ok")
+        return redirect(url_for("admin.auth_edit"))
+    return render_template("admin/auth_edit.html", form=form)
+
+
+# 权限删除
+@admin.route("/auth/del/<int:id>", methods=["GET"])
+@admin_login_req
+def auth_del(id=None):
+    auth = Auth.query.filter_by(id=id).first_or_404()
+    db.session.delete(auth)
+    db.session.commit()
+    flash("权限删除成功", "ok")
+    return redirect(url_for("admin.auth_list", page=1))
 
 
 # 添加角色

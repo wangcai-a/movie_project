@@ -174,7 +174,7 @@ class MovieForm(FlaskForm):
     )
 
 
-class previewForm(FlaskForm):
+class PreviewForm(FlaskForm):
     title = StringField(
         label="预告标题",
         validators=[
@@ -193,6 +193,39 @@ class previewForm(FlaskForm):
             DataRequired("请上传封面")
         ],
         description="预告封面"
+    )
+    submit = SubmitField(
+        "编辑",
+        render_kw={
+            "class": "btn btn-primary"
+        }
+    )
+
+
+class AuthForm(FlaskForm):
+    name = StringField(
+        label="权限名称",
+        validators=[
+            DataRequired("请输入权限名称")
+        ],
+        description="权限名称",
+        render_kw={
+            "class": "form-control",
+            "id": "input_title",
+            "placeholder": "请输入权限名称!"
+        }
+    )
+    url = StringField(
+        label="权限地址",
+        validators=[
+            DataRequired("请输入权限地址")
+        ],
+        description="权限地址",
+        render_kw={
+            "class": "form-control",
+            "id": "input_title",
+            "placeholder": "请输入权限地址!"
+        }
     )
     submit = SubmitField(
         "编辑",
