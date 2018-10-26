@@ -1,10 +1,11 @@
 from . import admin
 from flask import render_template, url_for, redirect, flash, session, request
-from app.admin.froms import LoginForm, TagForm, MovieForm, PreviewForm, AuthForm, RoleForm, PwdForm
+from app.admin.froms import LoginForm, TagForm, MovieForm, PreviewForm, AuthForm, RoleForm, PwdForm, AdminForm
 from app.models import Admin, Tag, Moviecol, Movie, Preview, User, Comment, Adminlog, Oplog, Userlog, Auth, Role
 from functools import wraps
 from app import db, app
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash
 import os
 import datetime
 import uuid
@@ -66,7 +67,6 @@ def pwd():
     if form.validate_on_submit():
         data = form.data
         admin = Admin.query.filter_by(name=session["admin"]).first()
-        from werkzeug.security import generate_password_hash
         admin.pwd = generate_password_hash(data["new_pwd"])
         db.session.add(admin)
         db.session.commit()
@@ -527,21 +527,53 @@ def role_add():
 
 
 # 角色列表
-@admin.route("/role/list")
+@admin.route("/role/list/<int:page>")
 @admin_login_req
-def role_list():
-    return render_template("admin/role_list.html")
+def role_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Role.query.order_by(
+        Role.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("admin/role_list.html", page_data=page_data)
 
 
 # 添加管理员
-@admin.route("/admin/add")
+@admin.route("/admin/add", methods=["GET", "POST"] )
 @admin_login_req
 def admin_add():
-    return render_template("admin/admin_add.html")
+    form = AdminForm()
+    if form.validate_on_submit():
+        data = form.data
+        if Admin.query.filter_by(name=data["name"]).count():
+            flash("用户名已经存在,请重新输入", "err")
+            return redirect(url_for("admin.admin_add"))
+        pwd = data["pwd"]
+        re_pwd = data["re_pwd"]
+        if pwd == re_pwd:
+            admin = Admin(
+                name=data["name"],
+                pwd=generate_password_hash(data["pwd"]),
+                role_id=int(data["role"])
+            )
+            db.session.add(admin)
+            db.session.commit()
+        else:
+            flash("两次密码不一致,请重新输入", "err")
+            return redirect(url_for("admin.admin_add"))
+        return redirect(url_for("admin.admin_list", page=1))
+    return render_template("admin/admin_add.html", form=form)
 
 
 # 管理员列表
-@admin.route("/admin/list")
+@admin.route("/admin/list/<int:page>",)
 @admin_login_req
-def admin_list():
-    return render_template("admin/admin_list.html")
+def admin_list(page=None):
+    if page is None:
+        page = 1
+    page_data = Admin.query.join(Role).filter(
+        Role.id == Admin.role_id
+    ).order_by(
+        Admin.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("admin/admin_list.html", page_data=page_data)
