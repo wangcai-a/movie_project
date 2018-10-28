@@ -12,6 +12,15 @@ import uuid
 import stat
 
 
+# 上下应用文处理器(封装全局变量)
+@admin.context_processor
+def tpl_extra():
+    data = dict(
+        online_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
+    return data
+
+
 # 定义访问控制装饰器
 def admin_login_req(f):
     @wraps(f)
@@ -47,6 +56,13 @@ def login():
             flash("密码错误!", "err")
             return redirect(url_for("admin.login"))
         session["admin"] = data["account"]
+        session["admin_id"] = admin.id
+        admin_log = Adminlog(
+            admin_id=admin.id,
+            ip=request.remote_addr,
+        )
+        db.session.add(admin_log)
+        db.session.commit()
         return redirect(request.args.get("next") or url_for("admin.index"))
     return render_template("admin/login.html", form=form)
 
@@ -56,6 +72,7 @@ def login():
 @admin_login_req
 def logout():
     session.pop("admin", None)
+    session.pop("admin_id", None)
     return redirect(url_for("admin.login"))
 
 
@@ -92,6 +109,13 @@ def tag_add():
         db.session.add(tag)
         db.session.commit()
         flash("添加标签成功", "ok")
+        oplog = Oplog(
+            admin_id=session["admin_id"],
+            ip=request.remote_addr,
+            reason="添加标签%s" % data["name"]
+        )
+        db.session.add(oplog)
+        db.session.commit()
         redirect(url_for("admin.tag_add"))
     return render_template("admin/tag_add.html", form=form)
 
@@ -400,7 +424,7 @@ def moviecol_list(page=None):
 
 
 # 操作日志列表
-@admin.route("/oplog/list/<int:page>")
+@admin.route("/oplog/list/<int:page>", methods=["GET"])
 @admin_login_req
 def oplog_list(page=None):
     if page is None:
@@ -414,21 +438,21 @@ def oplog_list(page=None):
 
 
 # 管理员日志列表
-@admin.route("/adminloginlog/list/<int:page>")
+@admin.route("/adminloginlog/list/<int:page>", methods=["GET"])
 @admin_login_req
 def adminloginlog_list(page=None):
     if page is None:
         page = 1
-    page_data = Oplog.query.join(Admin).filter(
+    page_data = Adminlog.query.join(Admin).filter(
         Admin.id == Adminlog.admin_id
     ).order_by(
-        Oplog.addtime.desc()
+        Adminlog.addtime.desc()
     ).paginate(page=page, per_page=10)
     return render_template("admin/adminloginlog_list.html", page_data=page_data)
 
 
 # 会员登录日志列表
-@admin.route("/userloginlog/list/<int:page>")
+@admin.route("/userloginlog/list/<int:page>", methods=["GET"])
 @admin_login_req
 def userloginlog_list(page=None):
     if page is None:

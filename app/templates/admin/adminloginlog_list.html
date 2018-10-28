@@ -30,13 +30,13 @@
                 <div class="box-body table-responsive no-padding">
                     <table class="table table-hover">
                         <tbody>
-                        {% for v in page_data.items %}
                         <tr>
                             <th>编号</th>
                             <th>管理员</th>
                             <th>登录时间</th>
                             <th>登录IP</th>
                         </tr>
+                        {% for v in page_data.items %}
                         <tr>
                             <td>{{ v.id }}</td>
                             <td>{{ v.admin.name }}</td>
@@ -49,7 +49,7 @@
                 </div>
                 <div class="box-footer clearfix">
                     <ul class="pagination pagination-sm no-margin pull-right">
-                        {{ pg.page(page_data, "admin.user_list") }}
+                        {{ pg.page(page_data, "admin.adminloginlog_list") }}
                     </ul>
                 </div>
             </div>
