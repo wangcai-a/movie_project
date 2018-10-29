@@ -1,5 +1,5 @@
 from . import admin
-from flask import render_template, url_for, redirect, flash, session, request
+from flask import render_template, url_for, redirect, flash, session, request, abort
 from app.admin.froms import LoginForm, TagForm, MovieForm, PreviewForm, AuthForm, RoleForm, PwdForm, AdminForm
 from app.models import Admin, Tag, Moviecol, Movie, Preview, User, Comment, Adminlog, Oplog, Userlog, Auth, Role
 from functools import wraps
@@ -31,6 +31,26 @@ def admin_login_req(f):
     return decorated_function
 
 
+# 访问权限控制器
+def admin_auth(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        admin = Admin.query.join(
+            Role
+        ).filter(
+            Role.id == Admin.role_id,
+            Admin.id == session["admin_id"]
+        ).first()
+        auths = admin.role.auths
+        auths = list(map(lambda v:int(v), auths.split(",")))
+        auths_list = Auth.query.all()
+        urls = [v.url for v in auths_list for val in auths if val==v.id]
+        rule = request.url_rule
+        if str(rule) not in urls:
+            abort(404)
+    return decorated_function
+
+
 # 修改文件名称
 def change_filename(filename):
     fileinfo = os.path.splitext(filename)
@@ -41,6 +61,7 @@ def change_filename(filename):
 # 主页面
 @admin.route("/")
 @admin_login_req
+@admin_auth
 def index():
     return render_template("admin/index.html")
 
@@ -95,6 +116,7 @@ def pwd():
 # 标签添加
 @admin.route("/tag/add", methods=['GET', 'POST'])
 @admin_login_req
+@admin_auth
 def tag_add():
     form = TagForm()
     if form.validate_on_submit():
@@ -135,6 +157,7 @@ def tag_list(page=None):
 # 标签删除
 @admin.route("/tag/del/<int:id>", methods=["GET"])
 @admin_login_req
+@admin_auth
 def tag_del(id=None):
     tag = Tag.query.filter_by(id=id).first_or_404()
     db.session.delete(tag)
