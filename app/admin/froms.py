@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, FileField, TextAreaField, SelectField, SelectMultipleField
-from wtforms.validators import DataRequired, ValidationError
+from wtforms.validators import DataRequired, ValidationError, EqualTo
 from app.models import Admin, Tag, Auth, Role
 
 
@@ -341,7 +341,8 @@ class AdminForm(FlaskForm):
     re_pwd = PasswordField(
         label="重复管理员密码",
         validators={
-            DataRequired("请输入管理员密码")
+            DataRequired("请输入管理员密码"),
+            EqualTo("pwd", message="两次密码不一致")
         },
         description="重复管理员密码",
         render_kw={

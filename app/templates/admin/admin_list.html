@@ -41,7 +41,11 @@
                         <tr>
                             <td>{{ v.id }}</td>
                             <td>{{ v.name }}</td>
+                            {% if v.is_super == 0 %}
+                            <td>超级管理员</td>
+                            {% else %}
                             <td>普通管理员</td>
+                            {% endif %}
                             <td>{{ v.role.name }}</td>
                             <td>{{ v.addtime }}</td>
                         </tr>

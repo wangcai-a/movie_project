@@ -572,19 +572,21 @@ def admin_add():
         if Admin.query.filter_by(name=data["name"]).count():
             flash("用户名已经存在,请重新输入", "err")
             return redirect(url_for("admin.admin_add"))
-        pwd = data["pwd"]
-        re_pwd = data["re_pwd"]
-        if pwd == re_pwd:
-            admin = Admin(
-                name=data["name"],
-                pwd=generate_password_hash(data["pwd"]),
-                role_id=int(data["role"])
-            )
-            db.session.add(admin)
-            db.session.commit()
-        else:
-            flash("两次密码不一致,请重新输入", "err")
-            return redirect(url_for("admin.admin_add"))
+        # pwd = data["pwd"]
+        # re_pwd = data["re_pwd"]
+        # if pwd == re_pwd:
+        admin = Admin(
+            name=data["name"],
+            pwd=generate_password_hash(data["pwd"]),
+            role_id=int(data["role"])
+        )
+        db.session.add(admin)
+        db.session.commit()
+        flash("添加管理员成功", "ok")
+        return redirect(url_for("admin.admin_list", page=1))
+        # else:
+        #     flash("两次密码不一致,请重新输入", "err")
+        #     return redirect(url_for("admin.admin_add"))
         return redirect(url_for("admin.admin_list", page=1))
     return render_template("admin/admin_add.html", form=form)
 

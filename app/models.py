@@ -135,7 +135,7 @@ class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)  # 管理员账号
     pwd = db.Column(db.String(100))  # 密码
-    is_super = db.Column(db.SmallInteger) # 是否为管理员
+    is_super = db.Column(db.SmallInteger) # 是否为管理员,0为超级管理员
     role_id = db.Column(db.Integer, db.ForeignKey("role.id"))  # 所属角色
     addtime = db.Column(db.DateTime, index=True, default=datetime.utcnow)  # 创建时间
     adminlogs = db.relationship("Adminlog", backref='admin')    # 管理员登录日志外键关联关系
