@@ -1,5 +1,10 @@
 from . import home
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, flash
+from app.home.froms import RegistForm
+from app.models import User
+from werkzeug.security import generate_password_hash
+import uuid
+from app import db
 
 
 @home.route("/")
@@ -25,9 +30,22 @@ def logout():
 
 
 # 注册
-@home.route("/register/")
+@home.route("/register/", methods=['GET', 'POST'])
 def register():
-    return render_template("home/register.html")
+    form = RegistForm()
+    if form.validate_on_submit():
+        data = form.data
+        user = User(
+            name=data["name"],
+            email=data["email"],
+            phone=data["phone"],
+            pwd=generate_password_hash(data["pwd"]),
+            uuid=uuid.uuid4().hex
+        )
+        db.session.add(user)
+        db.session.commit()
+        flash("注册成功", "ok")
+    return render_template("home/register.html", form=form)
 
 
 # 会员中心
