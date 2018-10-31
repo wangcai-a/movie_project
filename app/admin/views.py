@@ -48,6 +48,7 @@ def admin_auth(f):
         rule = request.url_rule
         if str(rule) not in urls:
             abort(404)
+        return f(*args, **kwargs)
     return decorated_function
 
 

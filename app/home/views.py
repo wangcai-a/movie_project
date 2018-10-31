@@ -35,6 +35,14 @@ def register():
     form = RegistForm()
     if form.validate_on_submit():
         data = form.data
+        name = User.query.filter_by(name=data["name"]).count()
+        email = User.query.filter_by(email=data["email"]).count()
+        if name:
+            flash("昵称已经被注册,请重新填写!", "err")
+            return redirect(url_for("home.register"))
+        if email:
+            flash("邮箱已经存在", "err")
+            return redirect(url_for("home.register"))
         user = User(
             name=data["name"],
             email=data["email"],
