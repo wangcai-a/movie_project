@@ -1,11 +1,15 @@
 from . import home
 from flask import render_template, redirect, url_for, flash, session, request
-from app.home.froms import RegistForm, LoginForm
+from app.home.froms import RegistForm, LoginForm, UserdetailForm
 from app.models import User, Userlog
 from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
 import uuid
-from app import db
+from app import db, app
 from functools import wraps
+import os
+import datetime
+import stat
 
 
 # 定义访问控制装饰器
@@ -16,6 +20,14 @@ def user_login_req(f):
             return redirect(url_for("home.login", next=request.url))
         return f(*args, **kwargs)
     return decorated_function
+
+
+# 修改文件名称
+def change_filename(filename):
+    fileinfo = os.path.splitext(filename)
+    filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + str(uuid.uuid4().hex) + fileinfo[-1]
+    return filename
+
 
 # 主页
 @home.route("/")
@@ -41,7 +53,7 @@ def login():
             flash("密码错误", "err")
             return redirect(url_for("home.login"))
         session["user"] = user.name
-        session["user"] = user.id
+        session["user_id"] = user.id
         userlog = Userlog(
             user_id=user.id,
             ip=request.remote_addr
@@ -87,11 +99,47 @@ def register():
     return render_template("home/register.html", form=form)
 
 
-# 会员中心
-@home.route("/user/")
+# 会员中心(修改会员资料)
+@home.route("/user/", methods=['GET', 'POST'])
 @user_login_req
 def user():
-    return render_template("home/user.html")
+    form = UserdetailForm()
+    user = User.query.get(int(session["user_id"]))
+    form.face.validators = []
+    if request.method == "GET":
+        form.name.data = user.name
+        form.email.data = user.email
+        form.phone.data = user.phone
+        form.info.data = user.info
+    if form.validate_on_submit():
+        data = form.data
+        file_face = secure_filename(form.face.data.filename)
+        if not os.path.exists(app.config["FC_DIR"]):
+            os.makedirs(app.config["FC_DIR"])
+            os.chmod(app.config["FC_DIR"], stat.S_IRWXU)
+        user.face = change_filename(file_face)
+        form.face.data.save(app.config["FC_DIR"] + user.face)
+        name_count = User.query.filter_by(name=data["name"]).count()
+        if data["name"] != user.name and name_count == 1:
+            flash("昵称已经存在", "err")
+            return redirect(url_for('home.user'))
+        email_count = User.query.filter_by(email=data["name"]).count()
+        if data["email"] != user.email and email_count == 1:
+            flash("邮箱已经存在", "err")
+            return redirect(url_for('home.user'))
+        phone_count = User.query.filter_by(phone=data["phone"]).count()
+        if data["phone"] != user.phone and phone_count == 1:
+            flash("电话号码已经存在", "err")
+            return redirect(url_for('home.user'))
+        user.name = data["name"]
+        user.name = data["email"]
+        user.name = data["phone"]
+        user.name = data["info"]
+        db.session.add(user)
+        db.session.commit()
+        flash("修改成功", 'ok')
+        return redirect(url_for("home.user"))
+    return render_template("home/user.html", form=form, user=user)
 
 
 # 修改密码
