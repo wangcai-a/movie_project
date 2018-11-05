@@ -44,7 +44,7 @@ def admin_auth(f):
         auths = admin.role.auths
         auths = list(map(lambda v:int(v), auths.split(",")))
         auths_list = Auth.query.all()
-        urls = [v.url for v in auths_list for val in auths if val==v.id]
+        urls = [v.url for v in auths_list for val in auths if val == v.id]
         rule = request.url_rule
         if str(rule) not in urls:
             abort(404)
@@ -584,6 +584,17 @@ def role_list(page=None):
         Role.addtime.desc()
     ).paginate(page=page, per_page=10)
     return render_template("admin/role_list.html", page_data=page_data)
+
+#角色编辑
+#角色删除
+@admin.route("/role/del/<int:id>", methods=["GET"])
+@admin_login_req
+def role_del(id=None):
+    role = Role.query.filter_by(id=id).first_or_404()
+    db.session.delete(role)
+    db.session.commit()
+    flash("权限删除成功", "ok")
+    return redirect(url_for("admin.role_list", page=1))
 
 
 # 添加管理员

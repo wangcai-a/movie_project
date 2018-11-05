@@ -44,7 +44,7 @@
                             <td>
                                 <a class="label label-success">编辑</a>
                                 &nbsp;
-                                <a class="label label-danger">删除</a>
+                                <a href="{{ url_for('admin.role_de', id=v.id) }}" class="label label-danger">删除</a>
                             </td>
                         </tr>
                         {% endfor %}
