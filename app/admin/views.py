@@ -534,15 +534,15 @@ def auth_edit(id=None):
         name_count = Auth.query.filter_by(name=data["name"]).count()
         if name_count == 1 and auth.name != data["name"]:
             flash("权限已存在,请重新修改", "err")
-            return redirect(url_for("admin.auth_add"))
-        auth = Auth(
-            name=data["name"],
-            url=data["url"]
-        )
-        db.session.add(auth)
+            return redirect(url_for("admin.auth_edit", id=id))
+        auth = {
+            'name': data["name"],
+            'url': data["url"]
+        }
+        db.session.query(Auth).filter(Auth.id == id).update(auth)
         db.session.commit()
         flash("权限修改成功", "ok")
-        return redirect(url_for("admin.auth_edit"))
+        return redirect(url_for("admin.auth_edit", id=id))
     return render_template("admin/auth_edit.html", form=form)
 
 
@@ -564,6 +564,10 @@ def role_add():
     form = RoleForm()
     if form.validate_on_submit():
         data = form.data
+        role = Role.query.filter_by(name=data['name']).count()
+        if role == 1:
+            flash('角色已经存在,请重新添加', 'err')
+            return redirect('role.add')
         role = Role(
             name=data["name"],
             auths=",".join(map(lambda v:str(v), data["auths"]))
@@ -585,7 +589,30 @@ def role_list(page=None):
     ).paginate(page=page, per_page=10)
     return render_template("admin/role_list.html", page_data=page_data)
 
+
 #角色编辑
+@admin.route("/role/edit/<int:id>", methods=["GET", "POST"])
+@admin_login_req
+def role_edit(id=None):
+    form = RoleForm()
+    role = Role.query.get_or_404(id)
+    if form.validate_on_submit():
+        data = form.data
+        role_count = Role.query.filter_by(name=data['name']).count()
+        if role_count == 1 and role.name != data['name']:
+            flash('角色已经存在,请重新修改', 'err')
+            return redirect(url_for('admin.role_edit', id=id))
+        auths = ",".join(map(lambda v:str(v), data["auths"]))
+        role = {
+            'name': data["name"],
+            'auths': auths
+        }
+        db.session.query(Role).filter_by(id=id).update(role)
+        db.session.commit()
+        flash("修改角色成功", "ok")
+    return render_template("admin/role_edit.html", form=form)
+
+
 #角色删除
 @admin.route("/role/del/<int:id>", methods=["GET"])
 @admin_login_req
