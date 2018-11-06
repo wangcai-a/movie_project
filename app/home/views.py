@@ -1,6 +1,6 @@
 from . import home
 from flask import render_template, redirect, url_for, flash, session, request
-from app.home.froms import RegistForm, LoginForm, UserdetailForm
+from app.home.froms import RegistForm, LoginForm, UserdetailForm, PwdForm
 from app.models import User, Userlog
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
@@ -49,18 +49,23 @@ def login():
     if form.validate_on_submit():
         data = form.data
         user = User.query.filter_by(name=data["name"]).first()
-        if not user.check_pwd(data["pwd"]):
-            flash("密码错误", "err")
+        if user:
+            if not user.check_pwd(data["pwd"]):
+                flash("密码错误", "err")
+                return redirect(url_for("home.login"))
+            session["user"] = user.name
+            session["user_id"] = user.id
+            userlog = Userlog(
+                user_id=user.id,
+                ip=request.remote_addr
+            )
+            db.session.add(userlog)
+            db.session.commit()
+            flash('登录成功', 'ok')
+            return redirect(url_for("home.user"))
+        else:
+            flash("账号不存在", 'err')
             return redirect(url_for("home.login"))
-        session["user"] = user.name
-        session["user_id"] = user.id
-        userlog = Userlog(
-            user_id=user.id,
-            ip=request.remote_addr
-        )
-        db.session.add(userlog)
-        db.session.commit()
-        return redirect(url_for("home.user"))
     return render_template("home/login.html", form=form)
 
 
@@ -143,10 +148,21 @@ def user():
 
 
 # 修改密码
-@home.route("/pwd/")
+@home.route("/pwd", methods=["GET", "POST"])
 @user_login_req
 def pwd():
-    return render_template("home/pwd.html")
+    form = PwdForm()
+    if form.validate_on_submit():
+        data = form.data
+        user = User.query.filter_by(name=session["user"]).first()
+        user.pwd = generate_password_hash(data['new_pwd'])
+        db.session.add(user)
+        db.session.commit()
+        flash("密码修改成功, 请重新登录", 'ok')
+        session.pop("user", None)
+        session.pop("user_id", None)
+        return redirect(url_for("home.login"))
+    return render_template("home/pwd.html", form=form)
 
 
 # 评论

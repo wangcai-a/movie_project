@@ -110,7 +110,7 @@ def pwd():
         db.session.add(admin)
         db.session.commit()
         flash("修改密码成功,请重新登录", "ok")
-        redirect(url_for('admin.logout'))
+        return redirect(url_for('admin.logout'))
     return render_template("admin/pwd.html", form=form)
 
 
@@ -602,7 +602,7 @@ def role_edit(id=None):
         if role_count == 1 and role.name != data['name']:
             flash('角色已经存在,请重新修改', 'err')
             return redirect(url_for('admin.role_edit', id=id))
-        auths = ",".join(map(lambda v:str(v), data["auths"]))
+        auths = ",".join(map(lambda v: str(v), data["auths"]))
         role = {
             'name': data["name"],
             'auths': auths

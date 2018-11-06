@@ -145,7 +145,6 @@ class Admin(db.Model):
     adminlogs = db.relationship("Adminlog", backref='admin')    # 管理员登录日志外键关联关系
     oplogs = db.relationship("Oplog", backref="admin")  # 管理员操作日志外键关联关系
 
-
     def __repr__(self):
         return "<Admin %r>" % self.name
 
