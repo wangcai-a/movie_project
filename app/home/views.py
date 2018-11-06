@@ -1,7 +1,7 @@
 from . import home
 from flask import render_template, redirect, url_for, flash, session, request
 from app.home.froms import RegistForm, LoginForm, UserdetailForm, PwdForm
-from app.models import User, Userlog
+from app.models import User, Userlog, Comment, Movie
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 import uuid
@@ -165,20 +165,37 @@ def pwd():
     return render_template("home/pwd.html", form=form)
 
 
-# 评论
-@home.route("/comments/")
+# 评论记录
+@home.route("/comments/<int:page>", methods=["GET"])
 @user_login_req
-def comments():
-    return render_template("home/comments.html")
+def comments(page=None):
+    if page is None:
+        page = 1
+    page_data = Comment.query.join(User).filter(
+        User.id == session["user_id"]
+    ).join(Movie).filter(
+        Movie.id == Comment.movie_id
+    ).order_by(
+        Comment.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("home/comments.html", page_data=page_data)
 
 
 # 登陆日志
-@home.route("/loginlog/")
+@home.route("/loginlog/<int:page>", methods=["GET"])
 @user_login_req
-def loginlog():
-    return render_template("home/loginlog.html")
+def loginlog(page=None):
+    if page is None:
+        page = 1
+    page_data = Userlog.query.join(User).filter(
+        User.id == Userlog.user_id
+    ).order_by(
+        Userlog.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("home/loginlog.html", page_data=page_data)
 
 
+# 电影收藏
 @home.route("/moviecol/")
 @user_login_req
 def moviecol():
