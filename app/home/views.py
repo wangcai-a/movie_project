@@ -202,7 +202,7 @@ def moviecol(page=None):
     if page is None:
         page = 1
     page_data = Moviecol.query.join(User).filter(
-        Moviecol.user_id == User.id
+        Moviecol.user_id == session["user_id"]
     ).join(Movie).filter(
         Moviecol.movie_id == Movie.id
     ).order_by(
