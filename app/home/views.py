@@ -1,7 +1,7 @@
 from . import home
 from flask import render_template, redirect, url_for, flash, session, request
 from app.home.froms import RegistForm, LoginForm, UserdetailForm, PwdForm
-from app.models import User, Userlog, Comment, Movie
+from app.models import User, Userlog, Comment, Movie, Moviecol
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 import uuid
@@ -196,10 +196,19 @@ def loginlog(page=None):
 
 
 # 电影收藏
-@home.route("/moviecol/")
+@home.route("/moviecol/<int:page>")
 @user_login_req
-def moviecol():
-    return render_template("home/moviecol.html")
+def moviecol(page=None):
+    if page is None:
+        page = 1
+    page_data = Moviecol.query.join(User).filter(
+        Moviecol.user_id == User.id
+    ).join(Movie).filter(
+        Moviecol.movie_id == Movie.id
+    ).order_by(
+        Moviecol.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("home/moviecol.html", page_data=page_data)
 
 
 # 电影搜索
