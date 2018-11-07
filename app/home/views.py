@@ -30,10 +30,15 @@ def change_filename(filename):
 
 
 # 主页
-@home.route("/")
+@home.route("/<int:page>")
 @user_login_req
-def index():
-    return render_template("home/index.html")
+def index(page=None):
+    if page is None:
+        page = 1
+    page_data = Movie.query.order_by(
+        Movie.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("home/index.html", page_data=page_data)
 
 
 @home.route("/animation/")
@@ -218,8 +223,15 @@ def search():
 
 
 # 电影播放
-@home.route("/play/")
-def play():
-    return render_template("home/play.html")
+@home.route("/play/<int:page>", methods=["GET", "POST"])
+def play(page=None):
+    if page is None:
+        page = 1
+    comments = Comment.query.join(Movie).filter(
+        Comment.movie_id == Movie.id
+    ).join(User).filter(
+        User.id == Comment.user_id
+    ).paginate(page=page, per_page=10)
+    return render_template("home/play.html", comments=comments)
 
 
