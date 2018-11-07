@@ -12,6 +12,7 @@ app.config["FC_DIR"] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 
 app.debug = True
 db = SQLAlchemy(app)
 
+
 from app.home import home as home_blueprint
 from app.admin import admin as admin_blueprint
 

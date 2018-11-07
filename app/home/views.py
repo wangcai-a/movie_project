@@ -1,6 +1,6 @@
 from . import home
 from flask import render_template, redirect, url_for, flash, session, request
-from app.home.froms import RegistForm, LoginForm, UserdetailForm, PwdForm
+from app.home.froms import RegistForm, LoginForm, UserdetailForm, PwdForm, CommentFrom
 from app.models import User, Userlog, Comment, Movie, Moviecol
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
