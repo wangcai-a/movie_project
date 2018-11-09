@@ -1,7 +1,7 @@
 from . import home
 from flask import render_template, redirect, url_for, flash, session, request
 from app.home.froms import RegistForm, LoginForm, UserdetailForm, PwdForm, CommentFrom
-from app.models import User, Userlog, Comment, Movie, Moviecol
+from app.models import User, Userlog, Comment, Movie, Moviecol, Tag, Preview
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 import uuid
@@ -35,16 +35,47 @@ def change_filename(filename):
 def index(page=None):
     if page is None:
         page = 1
-    page_data = Movie.query.order_by(
-        Movie.addtime.desc()
-    ).paginate(page=page, per_page=10)
-    return render_template("home/index.html", page_data=page_data)
+    page_data = Movie.query
+    tags = Tag.query.all()
+    tid = request.args.get('tid', 0)
+    star = request.args.get('star', 0)
+    time = request.args.get('time', 0)
+    pm = request.args.get('pm', 0)
+    cm = request.args.get('cm', 0)
+    if tid:
+        page_data = page_data.join(Tag).filter(
+            Movie.tag_id == tid
+        ).paginate(page=page, per_page=10)
+    elif star:
+        page_data = page_data.filter(
+            Movie.star == star
+        ).order_by(
+            Movie.addtime
+        ).paginate(page=page, per_page=10)
+    else:
+        page_data = page_data.order_by(
+            Movie.id
+        ).paginate(page=page, per_page=10)
+    p = dict(
+        tid=tid,
+        star=star,
+        time=time,
+        pm=pm,
+        cm=cm
+    )
+
+    # page_data = Movie.query.order_by(
+    #     Movie.addtime.desc()
+    # ).paginate(page=page, per_page=10)
+    return render_template("home/index.html", page_data=page_data, tags=tags, p=p)
 
 
+# 电影预告
 @home.route("/animation/")
 @user_login_req
 def animation():
-    return render_template("home/animation.html")
+    preview = Preview.query.all()
+    return render_template("home/animation.html", preview=preview)
 
 
 # 登陆
@@ -227,11 +258,13 @@ def search():
 def play(page=None):
     if page is None:
         page = 1
-    comments = Comment.query.join(Movie).filter(
+    # movie = Movie.query.get_or_404(id)
+    # movie_comments = Comment.query.filter_by(movie_id=id).count()
+    page_data = Comment.query.join(Movie).filter(
         Comment.movie_id == Movie.id
     ).join(User).filter(
         User.id == Comment.user_id
     ).paginate(page=page, per_page=10)
-    return render_template("home/play.html", comments=comments)
+    return render_template("home/play.html", page_data=page_data)
 
 

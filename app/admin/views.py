@@ -196,13 +196,13 @@ def movie_add():
         data = form.data
         file_url = secure_filename(form.url.data.filename)
         file_logo = secure_filename(form.logo.data.filename)
-        if not os.path.exists(app.config["UP_DIR"]):
-            os.makedirs(app.config["UP_DIR"])
-            os.chmod(app.config["UP_DIR"], stat.S_IRWXU)
+        if not os.path.exists(app.config["MV_DIR"]):
+            os.makedirs(app.config["MV_DIR"])
+            os.chmod(app.config["MV_DIR"], stat.S_IRWXU)
         url = change_filename(file_url)
         logo = change_filename(file_logo)
-        form.url.data.save(app.config["UP_DIR"] + url)
-        form.logo.data.save(app.config["UP_DIR"] + logo)
+        form.url.data.save(app.config["MV_DIR"] + url)
+        form.logo.data.save(app.config["MV_DIR"] + logo)
         title = Movie.query.filter_by(title=data['title']).count()
         if title == 1:
             flash("电影已经存在,请重新添加", "err")
@@ -251,13 +251,13 @@ def movie_edit(id=None):
         data = form.data
         file_url = secure_filename(form.url.data.filename)
         file_logo = secure_filename(form.logo.data.filename)
-        if not os.path.exists(app.config["UP_DIR"]):
-            os.makedirs(app.config["UP_DIR"])
-            os.chmod(app.config["UP_DIR"], stat.S_IRWXU)
+        if not os.path.exists(app.config["MV_DIR"]):
+            os.makedirs(app.config["MV_DIR"])
+            os.chmod(app.config["MV_DIR"], stat.S_IRWXU)
         url = change_filename(file_url)
         logo = change_filename(file_logo)
-        form.url.data.save(app.config["UP_DIR"] + url)
-        form.logo.data.save(app.config["UP_DIR"] + logo)
+        form.url.data.save(app.config["MV_DIR"] + url)
+        form.logo.data.save(app.config["MV_DIR"] + logo)
         title_count = Movie.query.filter_by(title=data['title']).count()
         if title_count == 1 and movie.title != data["title"]:
             flash("电影已经存在,请重新修改", "err")
@@ -301,11 +301,11 @@ def preview_add():
     if form.validate_on_submit():
         data = form.data
         file_logo = secure_filename(form.logo.data.filename)
-        if not os.path.exists(app.config["UP_DIR"]):
-            os.makedirs(app.config["UP_DIR"])
-            os.chmod(app.config["UP_DIR"], stat.S_IRWXU)
+        if not os.path.exists(app.config["PV_DIR"]):
+            os.makedirs(app.config["PV_DIR"])
+            os.chmod(app.config["PV_DIR"], stat.S_IRWXU)
         logo = change_filename(file_logo)
-        form.logo.data.save(app.config["UP_DIR"] + logo)
+        form.logo.data.save(app.config["PV_DIR"] + logo)
         title = Preview.query.filter_by(title=data['title']).count()
         if title == 1:
             flash("预告已经存在,请重新添加", "err")

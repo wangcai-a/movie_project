@@ -27,7 +27,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="box-body table-responsive no-padding">
+                <div class="box-body table-responsive no-padding" enctype="multipart/form-data">
                     <table class="table table-hover">
                         <tbody>
                         {% for v in page_data.items %}
@@ -42,7 +42,7 @@
                             <td>{{ v.id }}</td>
                             <td>{{ v.title }}</td>
                             <td>
-                                <img data-src="{{ url_for('static', filename='uploads/'+v.logo) }}" style="width:140px;" class="img-responsive center-block" alt="">
+                                <img data-src="{{ url_for('static', filename='uploads/preview/' + v.logo) }}" style="width:140px;" class="img-responsive center-block" alt="">
                             </td>
                             <td>{{ v.addtime }}</td>
                             <td>
