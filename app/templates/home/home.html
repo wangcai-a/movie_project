@@ -114,7 +114,7 @@
         $("img.lazy").lazyload({
             effect: "fadeIn"
         });
-        $("#do_search").click(function () {
+        $("#do_search").click(function() {
             var key = $("#key_movie").val();
             location.href = "{{ url_for('home.search', page=1) }}?key=" + key
         });

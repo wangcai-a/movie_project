@@ -22,8 +22,8 @@
             {% for v in page_data.items %}
                     <li class="item cl">
                         <a href="user.html">
-                            <i class="avatar size-L radius" enctype="multipart/form-data">
-                            <img src="{% if v.user.face %}{{  url_for('static', filename='uploads/users/' + user.face) }}{% else %}/static/static/admin/dist/img/user2-160x160.jpg{% endif %}"
+                            <i class="avatar size-L radius">
+                            <img src="{% if v.user.face %}{{  url_for('static', filename='uploads/face/' + v.user.face) }}{% else %}/static/static/admin/dist/img/user2-160x160.jpg{% endif %}"
                                  class="img-responsive img-rounded" style="width: 50px;">
                             </i>
                         </a>
