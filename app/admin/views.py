@@ -101,6 +101,7 @@ def logout():
 # 密码修改
 @admin.route("/pwd", methods=["GET", "POST"])
 @admin_login_req
+@admin_auth
 def pwd():
     form = PwdForm()
     if form.validate_on_submit():

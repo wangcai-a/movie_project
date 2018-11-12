@@ -177,6 +177,6 @@ class Oplog(db.Model):
     def __repr__(self):
         return "<Oplog %r>" % self.id
 
-#
+
 # if __name__ == '__main__':
 #     db.create_all()

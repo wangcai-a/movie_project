@@ -11,7 +11,7 @@ app.config["UP_DIR"] = os.path.join(os.path.abspath(os.path.dirname(__file__)), 
 app.config["FC_DIR"] = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static/uploads/face/")
 app.config["PV_DIR"] = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static/uploads/preview/")
 app.config["MV_DIR"] = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static/uploads/movie/")
-app.debug 
+app.debug=True
 db = SQLAlchemy(app)
 
 

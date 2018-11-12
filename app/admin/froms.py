@@ -123,9 +123,9 @@ class MovieForm(FlaskForm):
         }
     )
     tag_id = SelectField(
-        label="星级",
+        label="标签",
         validators=[
-            DataRequired("请选择星级")
+            DataRequired("请选择输入标签")
         ],
         coerce=int,
         choices=[(v.id, v.name) for v in tags],

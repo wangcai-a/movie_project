@@ -47,7 +47,11 @@
                             <td>{{ v.email }}</td>
                             <td>{{ v.phone }}</td>
                             <td>
-                                <img data-src="{{ url_for('static', filename='uploads/users/' + v.face ) }}" style="width: 50px" class="img-responsive center-block" alt="">
+                                {% if v.face %}
+                                <img src="{{ url_for('static', filename='uploads/face/' + v.face) }}" class="img-responsive img-rounded" style="width: 50px">
+                                {% else %}
+                                <img src="/static/static/admin/dist/img/user2-160x160.jpg" class="img-responsive img-rounded" style="width: 50px">
+                                {% endif %}
                             </td>
                             <td>正常/冻结</td>
                             <td>{{ v.addtime }}</td>
