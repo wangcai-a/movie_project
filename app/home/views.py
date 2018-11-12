@@ -293,12 +293,12 @@ def play(page=None):
     if page is None:
         page = 1
     # movie = Movie.query.get_or_404(id)
-    # movie_comments = Comment.query.filter_by(movie_id=id).count()
+    movie_comments = Movie.query.filter_by(id=1)
     page_data = Comment.query.join(Movie).filter(
         Comment.movie_id == Movie.id
     ).join(User).filter(
         User.id == Comment.user_id
     ).paginate(page=page, per_page=10)
-    return render_template("home/play.html", page_data=page_data)
+    return render_template("home/play.html", page_data=page_data, movie_comments=movie_comments)
 
 

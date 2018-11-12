@@ -24,12 +24,12 @@
                 <div class="media" enctype="multipart/form-data">
                     <div class="media-left">
                         <a href="play.html">
-                            <img class="media-object" src="{{  url_for('static', filename='uploads/' + v.movie.logo) }}"
+                            <img class="media-object" src="{{  url_for('static', filename='uploads/movie/' + v.movie.logo) }}"
                                  alt="{{ v.movie.title }}" style="width: 100px;">
                         </a>
                     </div>
                     <div class="media-body">
-                        <h4 class="media-heading">{{ v.movie.title }}<a href="{{ url_for('home.play') }}" class="label label-primary pull-right"><span class="glyphicon glyphicon-play"></span>播放影片</a></h4>
+                        <h4 class="media-heading">{{ v.movie.title }}<a href="{{ url_for('home.play', page=1) }}" class="label label-primary pull-right"><span class="glyphicon glyphicon-play"></span>播放影片</a></h4>
                         {{ v.movie.info }}
                     </div>
                 </div>

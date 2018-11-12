@@ -115,7 +115,7 @@
                 </div>
                 {% endif %}
                 <ol class="breadcrumb" style="margin-top:6px;">
-                    <li>全部评论(5)</li>
+                    <li>全部评论({{ movie_comments.commentnum }})</li>
                 </ol>
                 {% if "user" in session %}
                 <form role="form" style="margin-bottom:6px;" method="post">
@@ -136,7 +136,7 @@
                         {% for v in page_data.items %}
                         <a href="user.html">
                             <i class="avatar size-L radius" enctype="multipart/form-data">
-                            <img src="{% if v.user.face %}{{  url_for('static', filename='uploads/users/' + v.user.face) }}{% else %}/static/static/admin/dist/img/user2-160x160.jpg{% endif %}"
+                            <img src="{% if v.user.face %}{{  url_for('static', filename='uploads/face/' + v.user.face) }}{% else %}/static/static/admin/dist/img/user2-160x160.jpg{% endif %}"
                                  class="img-responsive img-rounded" style="width: 50px;">
                             </i>
                         </a>
