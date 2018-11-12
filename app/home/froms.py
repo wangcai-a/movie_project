@@ -248,7 +248,6 @@ class CommentFrom(FlaskForm):
         label="内容",
         description="内容",
         render_kw={
-            "class": "btn btn-success",
             "id": "input_content"
         }
     )

@@ -1,5 +1,5 @@
 {% extends "home/home.html" %}
-{% import "ui/admin_page.html" as pg %}
+{% import "ui/comment_page.html" as pg %}
 
 {% block css%}
 <!--播放页面-->
@@ -35,25 +35,25 @@
                         <td style="width:30%;color:#ccc;font-weight:bold;font-style:italic;">
                             <span class="glyphicon glyphicon-film"></span>&nbsp;片名
                         </td>
-                        <td>环太平洋</td>
+                        <td>{{ movie.title }}</td>
                     </tr>
                     <tr>
                         <td style="color:#ccc;font-weight:bold;font-style:italic;">
                             <span class="glyphicon glyphicon-tag"></span>&nbsp;标签
                         </td>
-                        <td>科幻</td>
+                        <td>{{ movie.tag.name }}</td>
                     </tr>
                     <tr>
                         <td style="color:#ccc;font-weight:bold;font-style:italic;">
                             <span class="glyphicon glyphicon-time"></span>&nbsp;片长
                         </td>
-                        <td>05:04</td>
+                        <td>{{ movie.length }}</td>
                     </tr>
                     <tr>
                         <td style="color:#ccc;font-weight:bold;font-style:italic;">
                             <span class="glyphicon glyphicon-map-marker"></span>&nbsp;地区
                         </td>
-                        <td>美国</td>
+                        <td>{{ movie.area }}</td>
                     </tr>
                     <tr>
                         <td style="color:#ccc;font-weight:bold;font-style:italic;">
@@ -73,26 +73,26 @@
                         <td style="color:#ccc;font-weight:bold;font-style:italic;">
                             <span class="glyphicon glyphicon-calendar"></span>&nbsp;上映时间
                         </td>
-                        <td>2013年7月12日</td>
+                        <td>{{ movie.release_time }}</td>
                     </tr>
                     <tr>
                         <td style="color:#ccc;font-weight:bold;font-style:italic;">
                             <span class="glyphicon glyphicon-play"></span>&nbsp;播放数量
                         </td>
-                        <td>1000</td>
+                        <td>{{ movie.playnum }}</td>
                     </tr>
                     <tr>
                         <td style="color:#ccc;font-weight:bold;font-style:italic;">
                             <span class="glyphicon glyphicon-comment"></span>&nbsp;评论数量
                         </td>
-                        <td>1000</td>
+                        <td>{{ movie.commentnum }}</td>
                     </tr>
                     <tr>
                         <td style="color:#ccc;font-weight:bold;font-style:italic;">
                             <span class="glyphicon glyphicon-picture"></span>&nbsp;影片介绍
                         </td>
                         <td>
-                        该片主要讲述了人类为了抵抗怪兽的进攻，研制出了高大的机器战士与来犯怪兽进行对抗的故事。
+                        {{ movie.info }}
                         </td>
                     </tr>
                 </table>
@@ -118,15 +118,27 @@
                     <li>全部评论({{ movie_comments.commentnum }})</li>
                 </ol>
                 {% if "user" in session %}
+                {% for msg in get_flashed_messages(category_filter=['ok']) %}
+                <p class="login-box-msg" style="color:green">{{ msg }}</p>
+                {% endfor %}
+                {% for msg in get_flashed_messages(category_filter=['err']) %}
+                <p class="login-box-msg" style="color:red">{{ msg }}</p>
+                {% endfor %}
                 <form role="form" style="margin-bottom:6px;" method="post">
                     <div class="form-group">
                         <div>
-                            <label for="input_content">内容</label>
-                            <textarea id="input_content"></textarea>
+                            <label for="input_content">{{ form.content.label }}</label>
+                            {{ form.content }}
+                            {% for err in form.content.errors %}
+                                <div class="col-md-12">
+                                    <font style="color:red">{{ err }}</font>
+                                </div>
+                                {% endfor %}
                         </div>
                         <div class="col-xs-12" id="error_content"></div>
                     </div>
-                    <a class="btn btn-success" id="btn-sub"><span class="glyphicon glyphicon-edit"></span>&nbsp;提交评论</a>
+                    {{ form.csrf_token }}
+                    {{ form.submit }}
                     &nbsp;
                     <a class="btn btn-danger" id="btn-col"><span class="glyphicon glyphicon-heart"></span>&nbsp;收藏电影</a>
                 </form>
@@ -158,7 +170,7 @@
                 <div class="col-md-12 text-center">
                     <nav aria-label="Page navigation">
                         <ul class="pagination">
-                            {{ pg.page(page_data, "home.play") }}
+                            {{ pg.page(page_data, "home.play", movie.id) }}
                         </ul>
                     </nav>
                 </div>
@@ -187,8 +199,8 @@ var ue = UE.getEditor('input_content',{
 	jwplayer("moviecontainer").setup({
 		flashplayer: "{{ url_for('static', filename='static/jwplayer/jwplayer.flash.swf') }}",
 		playlist: [{
-			file: "{{ url_for('static', filename='static/video/htpy.mp4') }}",
-			title: "环太平洋"
+			file: "{{ url_for('static', filename='uploads/movie/' + movie.url) }}",
+			title: "{{ movie.title }}"
 		}],
 		modes: [{
 			type: "html5"
