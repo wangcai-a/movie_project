@@ -37,25 +37,48 @@ def index(page=None):
         page = 1
     page_data = Movie.query
     tags = Tag.query.all()
+    # 标签
     tid = request.args.get('tid', 0)
+    if int(tid) != 0:
+        page_data = page_data.filter_by(tag_id=int(tid))
+    # 星级
     star = request.args.get('star', 0)
+    if int(star) != 0:
+        page_data = page_data.filter_by(star=int(star))
+    # 时间
     time = request.args.get('time', 0)
+    if int(time) != 0:
+        if int(time) == 1:
+            page_data = page_data.order_by(
+                Movie.addtime.desc()
+            )
+        else:
+            page_data = page_data.order_by(
+                Movie.addtime.asc()
+            )
+    # 播放量
     pm = request.args.get('pm', 0)
+    if int(pm) != 0:
+        if int(pm) == 1:
+            page_data = page_data.order_by(
+                Movie.playnum.desc()
+            )
+        else:
+            page_data = page_data.order_by(
+                Movie.playnum.asc()
+            )
+    # 评论量
     cm = request.args.get('cm', 0)
-    if tid:
-        page_data = page_data.join(Tag).filter(
-            Movie.tag_id == tid
-        ).paginate(page=page, per_page=10)
-    elif star:
-        page_data = page_data.filter(
-            Movie.star == star
-        ).order_by(
-            Movie.addtime
-        ).paginate(page=page, per_page=10)
-    else:
-        page_data = page_data.order_by(
-            Movie.id
-        ).paginate(page=page, per_page=10)
+    if int(cm) != 0:
+        if int(cm) == 1:
+            page_data = page_data.order_by(
+                Movie.commentnum.desc()
+            )
+        else:
+            page_data = page_data.order_by(
+                Movie.commentnum.asc()
+            )
+    page_data = page_data.paginate(page=page, per_page=10)
     p = dict(
         tid=tid,
         star=star,
@@ -74,8 +97,8 @@ def index(page=None):
 @home.route("/animation/")
 @user_login_req
 def animation():
-    preview = Preview.query.all()
-    return render_template("home/animation.html", preview=preview)
+    data = Preview.query.all()
+    return render_template("home/animation.html", data=data)
 
 
 # 登陆
@@ -248,12 +271,23 @@ def moviecol(page=None):
 
 
 # 电影搜索
-@home.route("/search/")
-def search():
-    return render_template("home/search.html")
+@home.route("/search/<int:page>")
+def search(page=None):
+    if page is None:
+        page=1
+    key = request.args.get("key", "")
+    movie_count = Movie.query.filter(
+        Movie.title.ilike('%' + key + '%')
+    ).count()
+    page_data = Movie.query.filter(
+        Movie.title.ilike('%' + key + '%')
+    ).order_by(
+        Movie.addtime.desc()
+    ).paginate(page=page, per_page=10)
+    return render_template("home/search.html", page_data=page_data, key=key, movie_count=movie_count)
 
 
-# 电影播放
+# 电影播放页面
 @home.route("/play/<int:page>", methods=["GET", "POST"])
 def play(page=None):
     if page is None:

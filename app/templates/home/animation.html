@@ -18,11 +18,11 @@
 				<span class="banner_btn_arrow"><i></i></span>
 			</a>
 			<ul>
-                {% for v in preview.items %}
+                {% for v in data %}
 				<li id="imgCard{{ v.id - 1 }}">
 					<a href=""><span style="opacity:0;"></span></a>
-					<img src="{{ url_for('static', filename='uploads' + v.logo ) }}" alt="">
-					<p style="bottom:0">周杰伦粉丝版MV</p>
+					<img src="{{ url_for('static', filename='uploads/movie/' + v.logo ) }}" alt="">
+					<p style="bottom:0">{{ v.title }}</p>
 				</li>
                 {% endfor %}
 			</ul>

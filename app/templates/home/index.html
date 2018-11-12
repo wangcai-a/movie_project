@@ -61,8 +61,8 @@
                 </table>
             </div>
             {% for v in page_data.items %}
-            <div class="col-md-3">
-                <div class="movielist text-center" enctype="multipart/form-data">
+            <div class="col-md-3"  enctype="multipart/form-data">
+                <div class="movielist text-center">
                     <!--<img data-original="holder.js/262x166"
                              class="img-responsive lazy center-block" alt="">-->
                     <img src="{{ url_for('static', filename='uploads/movie/' + v.logo) }}"
