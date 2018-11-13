@@ -115,7 +115,7 @@
                 </div>
                 {% endif %}
                 <ol class="breadcrumb" style="margin-top:6px;">
-                    <li>全部评论({{ movie_comments.commentnum }})</li>
+                    <li>全部评论({{ movie.commentnum }})</li>
                 </ol>
                 {% if "user" in session %}
                 {% for msg in get_flashed_messages(category_filter=['ok']) %}
@@ -139,7 +139,6 @@
                     </div>
                     {{ form.csrf_token }}
                     {{ form.submit }}
-                    &nbsp;
                     <a class="btn btn-danger" id="btn-col"><span class="glyphicon glyphicon-heart"></span>&nbsp;收藏电影</a>
                 </form>
                 {% endif %}
@@ -157,7 +156,7 @@
                                 <div class="comment-meta">
                                     <a class="comment-author" href="user.html">{{ v.user.name }}</a>
                                     评论于
-                                    <time title="2016-12-07 09:12:51" datetime="2016-12-07 09:12:51">{{ v.addtime }}</time>
+                                    <time title="{{ v.addtime }}" datetime="{{ v.addtime }}">{{ v.addtime }}</time>
                                 </div>
                             </header>
                             <div class="comment-body">

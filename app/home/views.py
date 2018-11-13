@@ -308,16 +308,18 @@ def play(id=None, page=None):
         db.session.add(comment)
         db.session.commit()
         movie.commentnum = movie.commentnum + 1
+        db.session.add(movie)
+        db.session.commit()
         flash("添加评论成功", "ok")
         return redirect(url_for('home.play', id=movie.id, page=1))
     db.session.add(movie)
     db.session.commit()
-    movie_comments = Movie.query.filter_by(id=id)
     page_data = Comment.query.join(Movie).filter(
-        Comment.movie_id == Movie.id
+        Comment.movie_id == Movie.id,
+        Movie.id == int(id)
     ).join(User).filter(
         User.id == Comment.user_id
     ).paginate(page=page, per_page=10)
-    return render_template("home/play.html", page_data=page_data, movie_comments=movie_comments, movie=movie, form=form)
+    return render_template("home/play.html", page_data=page_data, movie=movie, form=form)
 
 
