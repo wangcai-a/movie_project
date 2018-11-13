@@ -1,6 +1,7 @@
 from app import app, db
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
+from app.models import User, Userlog, Admin, Adminlog, Auth, Tag, Comment, Moviecol, Movie, Oplog, Role, Preview
 
 
 def make_shell_context():

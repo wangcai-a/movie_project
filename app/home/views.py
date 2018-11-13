@@ -321,5 +321,3 @@ def play(id=None, page=None):
         User.id == Comment.user_id
     ).paginate(page=page, per_page=10)
     return render_template("home/play.html", page_data=page_data, movie=movie, form=form)
-
-

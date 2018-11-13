@@ -4,11 +4,6 @@ from wtforms.validators import DataRequired, ValidationError, EqualTo
 from app.models import Admin, Tag, Auth, Role
 
 
-tags = Tag.query.all()
-auths_list = Auth.query.all()
-roles = Role.query.all()
-
-
 class LoginForm(FlaskForm):
     '''管理员登陆表单'''
     account = StringField(
@@ -122,6 +117,7 @@ class MovieForm(FlaskForm):
             "class": "form-control"
         }
     )
+    tags = Tag.query.all()
     tag_id = SelectField(
         label="标签",
         validators=[
@@ -250,6 +246,7 @@ class RoleForm(FlaskForm):
             "placeholder": "请输入角色名称!"
         }
     )
+    auths_list = Auth.query.all()
     auths = SelectMultipleField(
         label="权限列表",
         validators=[
@@ -351,6 +348,7 @@ class AdminForm(FlaskForm):
             "required": "required"
         }
     )
+    roles = Role.query.all()
     role = SelectField(
         label="角色",
         validators=[
