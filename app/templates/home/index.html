@@ -22,6 +22,7 @@
                     <tr>
                         <td style="width:10%;">电影标签</td>
                         <td style="width:90%;">
+                            <a href="{{ url_for('home.index') }}?page={{ p['page'] }}&tid=0&star={{ p['star'] }}&time={{ p['time'] }}&pm={{ p['pm'] }}&cm={{ p['cm'] }}" class="label label-info"><span class="glyphicon glyphicon-tag"></span>全部类型</a>
                             {% for v in tags %}
                             <a href="{{ url_for('home.index') }}?page={{ p['page'] }}&tid={{ v.id }}&star={{ p['star'] }}&time={{ p['time'] }}&pm={{ p['pm'] }}&cm={{ p['cm'] }}" class="label label-info"><span class="glyphicon glyphicon-tag"></span>&nbsp;{{ v.name }}</a>
                             {% endfor %}
@@ -29,6 +30,7 @@
                     <tr>
                         <td>电影星级</td>
                         <td>
+                            <a href="{{ url_for('home.index') }}?page={{ p['page'] }}&tid={{ p['tid'] }}&star=0&time={{ p['time'] }}&pm={{ p['pm'] }}&cm={{ p['cm'] }}" class="label label-warning"><span class="glyphicon glyphicon-star"></span>全部星级</a>
                             {% for v in range(1, 6) %}
                             <a href="{{ url_for('home.index') }}?page={{ p['page'] }}&tid={{ p['tid'] }}&star={{ v }}&time={{ p['time'] }}&pm={{ p['pm'] }}&cm={{ p['cm'] }}" class="label label-warning"><span class="glyphicon glyphicon-star"></span>&nbsp;{{ v }}星</a>
                             {% endfor %}
