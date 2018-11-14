@@ -30,13 +30,14 @@ def change_filename(filename):
 
 
 # 主页
-@home.route("/<int:page>")
+@home.route("/")
 @user_login_req
-def index(page=None):
-    if page is None:
-        page = 1
+def index():
+    page = int(request.args.get('page', 1))
     page_data = Movie.query
     tags = Tag.query.all()
+    # 页码
+    # page = request.args.get('page', 1)
     # 标签
     tid = request.args.get('tid', 0)
     if int(tid) != 0:
@@ -84,7 +85,8 @@ def index(page=None):
         star=star,
         time=time,
         pm=pm,
-        cm=cm
+        cm=cm,
+        page=page
     )
 
     # page_data = Movie.query.order_by(
