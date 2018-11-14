@@ -31,7 +31,6 @@ def change_filename(filename):
 
 # 主页
 @home.route("/")
-@user_login_req
 def index():
     page = int(request.args.get('page', 1))
     page_data = Movie.query
