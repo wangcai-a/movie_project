@@ -270,6 +270,14 @@ def moviecol(page=None):
     return render_template("home/moviecol.html", page_data=page_data)
 
 
+@home.route("/moviecol/add", methods=['GET'])
+@user_login_req
+def moviecol_add():
+    """添加电影收藏"""
+    pass
+
+
+
 # 电影搜索
 @home.route("/search/<int:page>")
 def search(page=None):
@@ -296,22 +304,21 @@ def play(id=None, page=None):
         Tag.id == Movie.tag_id,
         Movie.id == int(id)
     ).first_or_404()
-    movie.playnum = movie.playnum + 1
-    form = CommentFrom()
-    if "user" in session and form.validate_on_submit():
-        data = form.data
+    comments_form = CommentFrom()
+    if "user" in session  and comments_form.data and comments_form.validate_on_submit():
+        data = comments_form.data
         comment = Comment(
             content=data["content"],
             movie_id=movie.id,
             user_id=session["user_id"]
         )
         db.session.add(comment)
-        db.session.commit()
         movie.commentnum = movie.commentnum + 1
         db.session.add(movie)
         db.session.commit()
         flash("添加评论成功", "ok")
         return redirect(url_for('home.play', id=movie.id, page=1))
+    movie.playnum = movie.playnum + 1
     db.session.add(movie)
     db.session.commit()
     page_data = Comment.query.join(Movie).filter(
@@ -320,4 +327,5 @@ def play(id=None, page=None):
     ).join(User).filter(
         User.id == Comment.user_id
     ).paginate(page=page, per_page=10)
-    return render_template("home/play.html", page_data=page_data, movie=movie, form=form)
+    return render_template("home/play.html", page_data=page_data, movie=movie,
+                           comments_form=comments_form)

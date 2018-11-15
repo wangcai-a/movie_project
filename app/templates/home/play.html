@@ -127,9 +127,9 @@
                 <form role="form" style="margin-bottom:6px;" method="post">
                     <div class="form-group">
                         <div>
-                            <label for="input_content">{{ form.content.label }}</label>
-                            {{ form.content }}
-                            {% for err in form.content.errors %}
+                            <label for="input_content">{{ comments_form.content.label }}</label>
+                            {{ comments_form.content }}
+                            {% for err in comments_form.content.errors %}
                                 <div class="col-md-12">
                                     <font style="color:red">{{ err }}</font>
                                 </div>
@@ -137,8 +137,8 @@
                         </div>
                         <div class="col-xs-12" id="error_content"></div>
                     </div>
-                    {{ form.csrf_token }}
-                    {{ form.submit }}
+                    {{ comments_form.csrf_token }}
+                    {{ comments_form.submit }}
                     <a class="btn btn-danger" id="btn-col"><span class="glyphicon glyphicon-heart"></span>&nbsp;收藏电影</a>
                 </form>
                 {% endif %}
@@ -194,6 +194,30 @@ var ue = UE.getEditor('input_content',{
 <script type="text/javascript">
 	jwplayer.key = "P9VTqT/X6TSP4gi/hy1wy23BivBhjdzVjMeOaQ==";
 </script>
+
+{#<script>#}
+{#    $(document).ready(function () {#}
+{#        $("#btn-col").click(function () {#}
+{#            var mid = {{ movie.id }};#}
+{#            var uid = {{ session['user_id'] }};#}
+{#            $.ajax({#}
+{#                url: "{{ url_for('home.moviecol_add') }}",#}
+{#                type: "GET",#}
+{#                data: "mid=" + mid + "&uid=" + uid,#}
+{#                dataType: "json",#}
+{#                success: function (res) {#}
+{#                    if (res.ok == 1) {#}
+{#                        $("#show_col_msg").empty();#}
+{#                        $("#show_col_msg").append("收藏成功！");#}
+{#                    } else {#}
+{#                        $("#show_col_msg").empty();#}
+{#                        $("#show_col_msg").append("已经收藏！");#}
+{#                    }#}
+{#                }#}
+{#            })#}
+{#        });#}
+{#    });#}
+{#</script>#}
 <script type="text/javascript">
 	jwplayer("moviecontainer").setup({
 		flashplayer: "{{ url_for('static', filename='static/jwplayer/jwplayer.flash.swf') }}",
