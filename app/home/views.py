@@ -274,8 +274,24 @@ def moviecol(page=None):
 @user_login_req
 def moviecol_add():
     """添加电影收藏"""
-    pass
-
+    import json
+    uid = request.args.get('uid', '')
+    mid = request.args.get('mid', '')
+    moviecol = Moviecol.query.filter_by(
+        user_id = int(uid),
+        movie_id = int(mid)
+    ).count()
+    if moviecol == 1:
+        data = dict(ok=0)
+    if moviecol == 0:
+        moviecol = Moviecol(
+            user_id=int(uid),
+            movie_id=int(mid)
+        )
+        db.session.add(moviecol)
+        db.session.commit()
+        data = dict(ok=1)
+    return json.dumps(data)
 
 
 # 电影搜索

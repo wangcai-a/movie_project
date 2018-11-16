@@ -100,7 +100,7 @@
 <script src="{{ url_for('static', filename='static/base/js/bootstrap.min.js') }}"></script>
 <script src="{{ url_for('static', filename='static/base/js/jquery.singlePageNav.min.js') }}"></script>
 <script src="{{ url_for('static', filename='static/base/js/wow.min.js') }}"></script>
-<script src=".{{ url_for('static', filename='lazyload/jquery.lazyload.min.js') }}"></script>
+<script src=".{{ url_for('static', filename='static/lazyload/jquery.lazyload.min.js') }}"></script>
 <script src="//cdn.bootcss.com/holder/2.9.4/holder.min.js"></script>
 <script>
     $(function() {
@@ -108,12 +108,12 @@
     })
 
 </script>
-<script>
+<script type=text/javascript>
     $(document).ready(function() {
         $("img.lazy").lazyload({
             effect: "fadeIn"
         });
-        $("#do_search").click(function () {
+        $("a#do_search").click(function () {
             var key = $("#key_movie").val();
             location.href = "{{ url_for('home.search', page=1) }}?key=" + key;
         });
